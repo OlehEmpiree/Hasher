@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {get} from "./api/Api";
+import {get} from "./api/Requests";
 import Button from '@mui/material/Button';
 import ReactDOM from "react-dom";
 
