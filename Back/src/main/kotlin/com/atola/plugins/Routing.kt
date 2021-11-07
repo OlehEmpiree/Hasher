@@ -1,45 +1,67 @@
 package com.atola.plugins
 
+import com.atola.common.HashType
 import com.atola.core.HashWorker
 import com.atola.core.OnHashingListener
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import java.util.*
 
-data class Test(val Name: String, val age: Int)
+
 
 fun Application.configureRouting() {
 
+    val API_STRING = "/api"
+    var worker = HashWorker()
+
     routing {
-        get("/api") {
+        get("$API_STRING") {
             call.respondText("SERVER IS STARTED!")
         }
-//        get("/api/getString") {
-//            call.respond(Test("Test", 1))
-//        }
-//        get("/api/setString") {
-//            println(call.parameters["string"])
-//            call.respond("")
-//        }
 
-        get("/api/getHash"){
+        get("$API_STRING/getResult") {
+
+            val id = call.parameters["id"]
+
+            id?.let {
+                worker.hashResults.forEach {
+                    if (it.Id.toString() == id) {
+                        if (it.Hash == null) {
+                            call.respondText(it.Progress.toString())
+                            return@get
+                        }
+                        call.respond(it)
+                        return@get
+                    }
+                }
+            }
+
+            call.respondText("Not found your hash :(")
+
+        }
+
+        /* TODO
+        *
+        *
+        * */
+
+        get("$API_STRING/getHash") {
             val path = call.parameters["filePath"]
-
-            val worker = HashWorker()
-
             path?.let { it ->
                 try {
-                    val hash = worker.Create(it, object : OnHashingListener {
-                        override suspend fun onProgressChanged() {
-                            call.respondText(worker.progress.toString())
+                    worker.startNew(it, HashType.MD5, object : OnHashingListener {
+                        override suspend fun onStarted(hashProcessId: UUID) {
+                            call.respondText(hashProcessId.toString())
+                        }
+
+                        override suspend fun onFailed(message: String) {
+                            call.respondText(message)
                         }
                     })
-                    call.respondText("Hashing is done! You file path: $path ... MD5Hash = $hash")
-                }catch(exception: Exception){
-                    call.respondText(exception.message.toString())
+                } catch (exception: Exception) {
+                    log.error(exception.message)
                 }
-
-
             }
 
         }

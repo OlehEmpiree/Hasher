@@ -1,48 +1,62 @@
 package com.atola.core
 
-import kotlinx.coroutines.runBlocking
+import com.atola.common.HashType
+import com.atola.models.HashResult
+import kotlinx.coroutines.delay
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
-import kotlin.properties.Delegates
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class HashWorker {
 
+    var hashResults: ArrayList<HashResult> = ArrayList()
 
-    var progress: Int by Delegates.observable(0) { prop, old, new ->
-        run {
-            runBlocking {
-                eventListener.onProgressChanged()
-            }
-        }
-    }
 
-    private var eventListener: OnHashingListener = object : OnHashingListener{
-        override suspend fun onProgressChanged() {
-            throw IllegalArgumentException()
-        }
+//    var progress: Int by Delegates.observable(0) { prop, old, new ->
+//        run {
+//            runBlocking {
+//                eventListener.onProgressChanged(old-new)
+//            }
+//        }
+//    }
 
-    }
+    suspend fun startNew(filePath: String, hashType: HashType, callback: OnHashingListener, hashDelay:Int = 0) {
 
-    fun Create(filePath: String, EventListener: OnHashingListener): String? {
-        this.eventListener = EventListener
         val file = File(filePath)
         if (!file.exists())
-            throw FileNotFoundException("File not found!")
+        {
+            callback.onFailed("File not found")
+            return
+        }
 
-        val md5Digest = MessageDigest.getInstance("MD5")
+        val uuid = UUID.randomUUID()
 
-        val hash = getFileChecksum(md5Digest, file)
+        var result = HashResult(filePath, null, uuid, 0)
 
-        return hash;
+        hashResults.add(result)
+
+        callback.onStarted(uuid)
+
+        if(hashDelay != 0) {
+            for (i in 1..hashDelay) {
+                delay(2000)
+                result.Progress += 10;
+            }
+        }
+
+        val digest = MessageDigest.getInstance(hashType.name)
+
+        val hash = getFileChecksum(digest, hashType, file)
+
+        result.Hash = hash;
     }
 
-    @Throws(IOException::class)
-    fun getFileChecksum(digest: MessageDigest, file: File?): String? {
+
+    private fun getFileChecksum(digest: MessageDigest, hashType: HashType, file: File?): String? {
 
         val fis = FileInputStream(file)
 
@@ -57,7 +71,11 @@ class HashWorker {
 
         val bytes = digest.digest()
 
-        return BigInteger(1, bytes).toString(16).padStart(32, '0')
+        return when(hashType){
+            HashType.MD5 -> BigInteger(1, bytes).toString(16).padStart(32, '0')
+            HashType.SHA256 -> BigInteger(1, bytes).toString(16).padStart(64, '0')
+        }
+
     }
 
 
