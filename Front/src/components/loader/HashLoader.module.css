@@ -1,0 +1,13 @@
+.loader{
+    display: flex;
+    padding: 15px;
+    margin-top: 15px;
+    justify-content: space-between;
+    border: 2px solid teal;
+    align-items: center;
+}
+
+.progress{
+    margin-top: 5px;
+    width: 600px;
+}

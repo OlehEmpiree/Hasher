@@ -1,3 +1,4 @@
-export function sendFilePath = ()=>{
+export function sendFilePath(): void{
+
 
 }
