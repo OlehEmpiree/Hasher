@@ -5,6 +5,7 @@ import ReactDOM from "react-dom";
 import HashPanel from "./components/hashPanel/HashPanel";
 import HashLoader from "./components/loader/HashLoader";
 import './styles/App.css'
+import {HashType} from "./common/enums";
 
 function App() {
   // useEffect(()=> {
@@ -13,9 +14,9 @@ function App() {
   // },[])
 
   const [tasks, setTasks] = useState([
-      {filePath: '1.png', progress:50, id:0 },
-      {filePath: '2.png',progress:25, id:1 },
-      {filePath: '3.png',progress:0, id:2 },
+      {id: 0, filePath: '1.png', progress:50, hashType:HashType.MD5 },
+      {id: 1, filePath: '2.png', progress:25, hashType:HashType.MD5 },
+      {id: 2, filePath: '3.png', progress:0, hashType:HashType.MD5 },
   ])
 
   function removeTask(filePath: String):void {
