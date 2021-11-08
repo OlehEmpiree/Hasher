@@ -8,12 +8,11 @@ import java.io.FileInputStream
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class HashWorker {
 
-    var hashResults: ArrayList<HashResult> = ArrayList()
+    var hashResults: MutableList<HashResult> = mutableListOf()
 
 
 //    var progress: Int by Delegates.observable(0) { prop, old, new ->
@@ -35,7 +34,7 @@ class HashWorker {
 
         val uuid = UUID.randomUUID()
 
-        var result = HashResult(filePath, null, uuid, 0)
+        val result = HashResult(filePath, hashType, null, uuid, 0)
 
         hashResults.add(result)
 
@@ -50,13 +49,14 @@ class HashWorker {
 
         val digest = MessageDigest.getInstance(hashType.name)
 
-        val hash = getFileChecksum(digest, hashType, file)
+        val hash = getFileChecksum(digest, result, file)
 
+        result.Progress = 100
         result.Hash = hash;
     }
 
 
-    private fun getFileChecksum(digest: MessageDigest, hashType: HashType, file: File?): String? {
+    private fun getFileChecksum(digest: MessageDigest, hashResult: HashResult, file: File): String {
 
         val fis = FileInputStream(file)
 
@@ -71,7 +71,7 @@ class HashWorker {
 
         val bytes = digest.digest()
 
-        return when(hashType){
+        return when(hashResult.HashType){
             HashType.MD5 -> BigInteger(1, bytes).toString(16).padStart(32, '0')
             HashType.SHA256 -> BigInteger(1, bytes).toString(16).padStart(64, '0')
         }
