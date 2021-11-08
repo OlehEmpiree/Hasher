@@ -12,7 +12,7 @@ import java.util.*
 
 class HashWorker {
 
-    var hashResults: MutableList<HashResult> = mutableListOf()
+    var hashResults = mutableListOf<HashResult>()
 
 
 //    var progress: Int by Delegates.observable(0) { prop, old, new ->

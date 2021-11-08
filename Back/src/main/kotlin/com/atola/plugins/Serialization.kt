@@ -11,6 +11,8 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         gson {
             setPrettyPrinting()
+            disableHtmlEscaping()
+            setLenient()
         }
     }
 

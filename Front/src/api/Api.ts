@@ -1,14 +1,24 @@
 import {get} from "./Requests";
+import {HashProcessToken} from "../App";
 
-export function sendFilePath(): void{
+export function startHash(file: string): void{
 
+     get("/start", {file: file}).then(
+         token => {
+            getResult(token)
+         }
+     )
 
 }
 
 
 
-export function updateProgressById(id: number): void{
+export function getResult(token: HashProcessToken): void{
 
-    get("api/getResult").then(item => console.log(item))
+    get("/result", {id: token.token}).then(
+        result => {
+            console.log(result)
+        }
+    )
 
 }

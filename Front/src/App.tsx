@@ -1,33 +1,55 @@
 import React, {useEffect, useState} from 'react';
 import {get} from "./api/Requests";
-import Button from '@mui/material/Button';
-import ReactDOM from "react-dom";
 import HashPanel from "./components/hashPanel/HashPanel";
-import HashLoader from "./components/loader/HashLoader";
 import './styles/App.css'
 import {HashType} from "./common/enums";
+import {Alert, Snackbar} from "@mui/material";
+import {getResult, startHash} from "./api/Api";
+
+
+export interface HashTask {
+    HashProcess: HashProcessToken
+    HashType: HashType,
+    Hash: string,
+    Progress: number
+}
+
+export interface HashProcessToken {
+    filePath: string,
+    token: string,
+}
+
 
 function App() {
-  // useEffect(()=> {
-  //   get("/getString").then(item => console.log(item))
-  //   get("/setString", {string: "ui" }).then(item => console.log(item))
-  // },[])
+    useEffect(()=> {
+        startHash("C:\\Users\\Atolanin\\Desktop\\git hub pass.txt")
+    },[])
 
-  const [tasks, setTasks] = useState([
-      {id: 0, filePath: '1.png', progress:50, hashType:HashType.MD5 },
-      {id: 1, filePath: '2.png', progress:25, hashType:HashType.MD5 },
-      {id: 2, filePath: '3.png', progress:0, hashType:HashType.MD5 },
-  ])
+    const [tasks, setTasks] = useState<HashTask[]>([])
 
-  function removeTask(filePath: String):void {
-      setTasks(tasks.filter(item => item.filePath !== filePath));
-  }
+    const [openSnackBar, setOpenSnackBar] = useState<boolean>()
 
-  return (
-    <div className="App">
-        <HashPanel hashTasks={tasks} removeTask={removeTask} />
-    </div>
-  );
+    function removeTask(token: string): void {
+        setTasks(tasks.filter(task => task.HashProcess.token !== token));
+        setOpenSnackBar(true)
+    }
+
+
+
+    return (
+        <div className="App">
+            <HashPanel hashTasks={tasks} removeTask={removeTask}/>
+
+            <Snackbar
+                open={openSnackBar}
+                onClose={() => setOpenSnackBar(false)}
+                autoHideDuration={5000}>
+
+                <Alert severity="success"> Hash is done! </Alert>
+            </Snackbar>
+
+        </div>
+    );
 }
 
 

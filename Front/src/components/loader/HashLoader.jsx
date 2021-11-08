@@ -1,5 +1,4 @@
 import React from 'react';
-import {TransitionGroup} from "react-transition-group";
 import {LinearProgress} from "@mui/material";
 import classes from './HashLoader.module.css'
 import Button from "@mui/material/Button";
