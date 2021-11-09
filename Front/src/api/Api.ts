@@ -1,24 +1,14 @@
 import {get} from "./Requests";
-import {HashProcessToken} from "../App";
+import {HashProcessToken, HashTask} from "./models/ApiObjects";
 
-export function startHash(file: string): void{
-
-     get("/start", {file: file}).then(
-         token => {
-            getResult(token)
-         }
-     )
-
+export function startHash(file: string): Promise<HashProcessToken>{
+    return get("/start", {file: file})
 }
 
+export function fetchAll(): Promise<HashTask[]>{
+    return get("/getAll");
+}
 
-
-export function getResult(token: HashProcessToken): void{
-
-    get("/result", {id: token.token}).then(
-        result => {
-            console.log(result)
-        }
-    )
-
+export function removeTask(token: string){
+    return get("/remove", {token: token})
 }

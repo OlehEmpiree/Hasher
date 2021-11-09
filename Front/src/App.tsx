@@ -1,52 +1,36 @@
-import React, {useEffect, useState} from 'react';
-import {get} from "./api/Requests";
+import React, {useState} from 'react';
 import HashPanel from "./components/hashPanel/HashPanel";
 import './styles/App.css'
-import {HashType} from "./common/enums";
 import {Alert, Snackbar} from "@mui/material";
-import {getResult, startHash} from "./api/Api";
+import {HashTask} from "./api/models/ApiObjects";
+import useInterval from "./hooks/useInterval";
+import {fetchAll, removeTask, startHash} from "./api/Api";
 
 
-export interface HashTask {
-    HashProcess: HashProcessToken
-    HashType: HashType,
-    Hash: string,
-    Progress: number
-}
-
-export interface HashProcessToken {
-    filePath: string,
-    token: string,
-}
 
 
 function App() {
-    useEffect(()=> {
-        startHash("C:\\Users\\Atolanin\\Desktop\\git hub pass.txt")
-    },[])
 
     const [tasks, setTasks] = useState<HashTask[]>([])
 
+    useInterval(()=>{
+
+        fetchAll().then(fetchedTasks=> setTasks(fetchedTasks))
+        console.log(tasks)
+    }, 2000, [tasks.length])
+
     const [openSnackBar, setOpenSnackBar] = useState<boolean>()
 
-    function removeTask(token: string): void {
-        setTasks(tasks.filter(task => task.HashProcess.token !== token));
+    function handleRemoveTask(token: string): void {
+        removeTask(token)
+        setTasks(tasks.filter(task => task.Token.token !== token));
         setOpenSnackBar(true)
     }
 
 
-
     return (
         <div className="App">
-            <HashPanel hashTasks={tasks} removeTask={removeTask}/>
-
-            <Snackbar
-                open={openSnackBar}
-                onClose={() => setOpenSnackBar(false)}
-                autoHideDuration={5000}>
-
-                <Alert severity="success"> Hash is done! </Alert>
-            </Snackbar>
+            <HashPanel tasks={tasks} onRemoveTask={handleRemoveTask}/>
 
         </div>
     );

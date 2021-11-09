@@ -5,4 +5,5 @@ import java.util.*
 interface OnHashingListener {
     suspend fun onStarted(hashProcessId: UUID)
     suspend fun onFailed(message: String)
+    suspend fun onAborted(message: String)
 }

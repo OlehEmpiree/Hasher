@@ -1,12 +1,10 @@
 package com.atola
 
 import com.atola.common.HashType
-import com.atola.core.HashWorker
 import com.atola.core.OnHashingListener
 import com.atola.plugins.configureRouting
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.util.*
