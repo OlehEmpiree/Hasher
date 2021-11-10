@@ -18,7 +18,7 @@ export function queryParams(params: any): string {
         .join("&");
 }
 
-async function fetchUrl<TParams = any, TResponse = any>(httpMethod: HttpMethods, url: string, params?: TParams): Promise<TResponse> {
+async function fetchUrl<TParams = any, TResponse = any>(httpMethod: HttpMethods, url: string, params?: TParams){
     url = (`/api/${url}`).replace("//", "/");
 
     if (params)
@@ -29,7 +29,7 @@ async function fetchUrl<TParams = any, TResponse = any>(httpMethod: HttpMethods,
     if (response.ok)
         return response.json();
 
-    throw new FetchError(response);
+    //throw new FetchError(response);
 }
 
 export async function get<TParams = any, TResponse = any>(url: string, params?: TParams): Promise<TResponse> {

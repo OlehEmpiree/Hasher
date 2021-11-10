@@ -1,19 +1,20 @@
 import classes from "./HashLoader.module.css";
-import {LinearProgress} from "@mui/material";
 import Button from "@mui/material/Button";
 import React from "react";
 import {HashTask} from "../../api/models/ApiObjects";
-import {makeStyles} from "@material-ui/core";
 import styled from "styled-components";
 import LinearProgressWithLabel from "../progress/LinearProgressWithLabel";
+import {Typography} from "@material-ui/core";
+import '@fontsource/roboto/500.css';
 
 interface Props {
     task: HashTask;
+
     onRemove(token: string): void;
 }
 
 const StyledP = styled.p`
-    margin-top: 5px;
+  margin-top: 5px;
 `;
 
 
@@ -25,17 +26,27 @@ const StyledP = styled.p`
 // }));
 
 
-
 const HashLoader = ({task, onRemove}: Props) => {
 
- //   const styles = useStyles()
+    //   const styles = useStyles()
     const isDone = task.Progress === 100
+    const rootClasses = [classes.loader]
+    if(isDone)
+        rootClasses.push(classes.loader_done)
+    else
+        rootClasses.push(classes.loader_inProgress)
+
 
     return (
-        <div className={classes.loader}>
+        <div className={rootClasses.join(' ')}>
+
             <div>
-                <StyledP style={{fontWeight:"bold"}}>Путь к файлу:</StyledP>
-                <StyledP>{task.Token.filePath}</StyledP>
+                <StyledP style={{fontWeight: "bold"}}>
+                    Путь к файлу:
+                </StyledP>
+                <StyledP>
+                    <Typography variant="subtitle1">{task.Token.filePath}</Typography>
+                </StyledP>
 
                 {!isDone &&
                 <LinearProgressWithLabel
@@ -44,14 +55,18 @@ const HashLoader = ({task, onRemove}: Props) => {
                     className={classes.progress}/>
                 }
 
-                {task.Checksum && <StyledP>{task.HashType} hash: {task.Checksum} </StyledP>}
+                {task.Checksum &&
+                <StyledP>
+                    <Typography variant={"subtitle1"}>
+                        {task.HashType} hash: {task.Checksum}
+                    </Typography>
+                </StyledP>}
             </div>
 
             <Button variant="contained"
                     onClick={e => onRemove(task.Token.token)}
-                    color={isDone ?'success': 'error'}
-            >Close</Button>
-
+                    color={isDone ? 'success' : 'error'}
+            >{isDone ? 'Закрыть' : 'Завершить'}</Button>
 
 
         </div>

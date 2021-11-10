@@ -1,12 +1,15 @@
 package com.atola
 
+import com.atola.common.HashTaskParams
 import com.atola.common.HashType
+import com.atola.core.HashTask
 import com.atola.core.OnHashingListener
 import com.atola.plugins.configureRouting
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.io.File
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -15,18 +18,9 @@ class ApplicationTest {
 
     private val testFile = System.getProperty("user.dir") + "\\tests\\" + "test.txt"
 
-    @Test
-    fun testBadId() {
-        withTestApplication({ configureRouting() }) {
-            handleRequest(HttpMethod.Get, "/api/getResult").apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("Not found your hash :(", response.content)
-            }
-        }
-    }
 
     @Test
-     fun testMD5() {
+    fun testMD5() {
         val expectedHash = "42146759f5cd54c396f30b1666a7db49"
         val hashType = HashType.MD5
 
@@ -41,33 +35,28 @@ class ApplicationTest {
         testCheckSum(testFile, expectedHash, hashType)
     }
 
-   private fun testCheckSum(filePath: String, expectedHash: String, hashType: HashType){
+    private fun testCheckSum(filePath: String, expectedHash: String, hashType: HashType) {
         withTestApplication({ configureRouting() }) {
 
-            val worker = HashWorker()
-            var uuid: UUID? = null
+            val file = File(filePath)
+
+            val task = HashTask(HashTaskParams(file, hashType, object : OnHashingListener {
+                override suspend fun onStarted(apiToken: UUID) {}
+                override suspend fun onFailed(message: String) = fail(message)
+                override suspend fun onAborted(message: String) = fail(message)
+            }))
 
             runBlocking {
-                worker.startNew(filePath, hashType, object: OnHashingListener{
-                    override suspend fun onFailed(message: String) {
-                        fail(message)
-                    }
-
-                    override suspend fun onStarted(hashProcessId: UUID) {
-                        uuid = hashProcessId
-                    }
-                })
+                task.start()
             }
 
-            uuid?.let {
-                worker.hashResults.forEach{
-                    if(it.Id == uuid){
-                        assertEquals(expectedHash, it.Hash)
-                    }
-                }
-            }
+            val result = task.getResult()
 
-            assertEquals(1,  worker.hashResults.size)
+            if (result == null)
+                fail("hash is null")
+            else
+                assertEquals(expectedHash, result.Checksum)
+
         }
     }
 }

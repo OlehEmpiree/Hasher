@@ -7,6 +7,14 @@
     align-items: center;
 }
 
+.loader_done{
+    border: 2px solid teal;
+}
+
+.loader_inProgress{
+    border: 2px solid red;
+}
+
 .progress{
     margin-top: 5px;
     width: 600px;

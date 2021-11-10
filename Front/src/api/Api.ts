@@ -12,3 +12,7 @@ export function fetchAll(): Promise<HashTask[]>{
 export function removeTask(token: string){
     return get("/remove", {token: token})
 }
+
+export function getFileExist(filePath: string){
+    return get("/fileExist", {filePath: filePath})
+}

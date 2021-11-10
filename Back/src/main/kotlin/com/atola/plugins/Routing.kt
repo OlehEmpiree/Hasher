@@ -3,6 +3,7 @@ package com.atola.plugins
 import com.atola.common.HashTaskParams
 import com.atola.common.HashType
 import com.atola.core.HashTask
+import com.atola.core.OnHashingListener
 import com.atola.tasks.Tasks
 import io.ktor.application.*
 import io.ktor.response.*
@@ -10,6 +11,7 @@ import io.ktor.routing.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
 
@@ -27,6 +29,16 @@ fun Application.configureRouting() {
             call.respond(Tasks.AllTasks.map(HashTask::getResult))
         }
 
+        get("$API_STRING/fileExist"){
+
+            val filePath = call.parameters["filePath"]
+
+            if(filePath.isNullOrEmpty())
+                call.respond(false)
+            else
+                call.respond(File(filePath).exists())
+        }
+
         get("$API_STRING/remove") {
             val token = call.parameters["token"]
 
@@ -36,7 +48,7 @@ fun Application.configureRouting() {
             }
 
             val task = Tasks.AllTasks.firstOrNull {
-                it.hashTaskParams.uuid.toString() == token
+                it.token.toString() == token
             }
             if (task == null) {
                 call.respond(false)
@@ -98,20 +110,16 @@ fun Application.configureRouting() {
 
             val hashType = HashType.fromString(hashParam)
 
-            val uuid = UUID.randomUUID()
             val file = File(pathParam)
-            val hashTask = HashTask(HashTaskParams( uuid, file, hashType))
+            val hashTask = HashTask(HashTaskParams(file, hashType))
 
             Tasks.AllTasks.add(hashTask)
 
-            call.respond(uuid)
+            call.respond(hashTask.token)
 
             CoroutineScope(Dispatchers.IO).launch {
                 hashTask.start()
             }
-
-
-
 
         }
     }
