@@ -60,50 +60,6 @@ fun Application.configureRouting() {
             call.respond(true)
         }
 
-        /* TODO
-        * (1 done). Добавить возможность выбрать тип хэша через API (support SHA256)
-        * 2. Добавить логгирование
-        * 3. Очищение результатов хэша спустя время (1-2 минуты)
-        * 4. Упростить работу с API
-        * 5. Добавить обновление прогресса (!)
-        * */
-
-//        get("$API_STRING/start") {
-//            val pathParam = call.parameters["file"]
-//            val hashParam =
-//                call.parameters["hash"]?.uppercase()
-//
-//            val hashType: HashType = try {
-//                hashParam?.let { hash ->
-//                    HashType.valueOf(hash)
-//                } ?: HashType.MD5
-//            } catch (ignored: Exception) {
-//                HashType.MD5
-//            }
-//
-//            pathParam?.let { path ->
-//                try {
-//                    worker.startNew(path, hashType, object : OnHashingListener {
-//                        override suspend fun onStarted(hashProcessId: UUID) {
-//                            val process = HashProcessToken(hashProcessId, path)
-//                            call.respond(process)
-//                        }
-//
-//                        override suspend fun onFailed(message: String) {
-//                            call.respondText(message)
-//                        }
-//
-//                        override suspend fun onAborted(message: String) {
-//                            call.respondText(message)
-//                        }
-//                    })
-//                } catch (exception: Exception) {
-//                    log.error(exception.message)
-//                }
-//            }
-//
-//        }
-
         get("$API_STRING/start") {
             val pathParam = call.parameters["file"]!!
             val hashParam = call.parameters["hash"]?.uppercase() ?: "MD5"

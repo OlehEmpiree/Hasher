@@ -41,9 +41,7 @@ class ApplicationTest {
             val file = File(filePath)
 
             val task = HashTask(HashTaskParams(file, hashType, object : OnHashingListener {
-                override suspend fun onStarted(apiToken: UUID) {}
                 override suspend fun onFailed(message: String) = fail(message)
-                override suspend fun onAborted(message: String) = fail(message)
             }))
 
             runBlocking {
@@ -52,10 +50,7 @@ class ApplicationTest {
 
             val result = task.getResult()
 
-            if (result == null)
-                fail("hash is null")
-            else
-                assertEquals(expectedHash, result.Checksum)
+            assertEquals(expectedHash, result.Checksum)
 
         }
     }

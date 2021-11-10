@@ -65,7 +65,7 @@ const HashLoader = ({task, onRemove}: Props) => {
 
             <Button variant="contained"
                     onClick={e => onRemove(task.Token.token)}
-                    color={isDone ? 'success' : 'error'}
+                    color={isDone ? 'success' : 'primary'}
             >{isDone ? 'Закрыть' : 'Завершить'}</Button>
 
 

@@ -4,17 +4,59 @@ import './animations.css'
 import HashLoader from "../loader/HashLoader";
 import {HashTask} from "../../api/models/ApiObjects";
 import {Typography} from "@mui/material";
+import AddHashButton from "./AddHashButton";
+import useInterval from "../../hooks/useInterval";
+import {fetchAll, getFileExist, removeTask, startHash} from "../../api/Api";
 
 
 export interface Props {
     tasks: HashTask[];
-    onRemoveTask(token: string): void;
+    setTasks: (tasks: HashTask[]) => void
+    setOpenSnackBar: (state: boolean) => void
 }
 
-const HashPanel = ({tasks, onRemoveTask}: Props) => {
+const HashPanel = ({tasks, setTasks, setOpenSnackBar}: Props) => {
+
+
+    useInterval(() => {
+        try{
+            fetchAll().then(fetchedTasks => setTasks(fetchedTasks))
+        }
+        catch (e) {
+            setTasks([])
+        }
+    }, 250)
+
+
+    const [openModal, setOpenModal] = React.useState(false);
+
+    function handleRemoveTask(token: string): void {
+        removeTask(token)
+    }
+
+    async function startNewTask(filePath: string) {
+
+        let isExist = await getFileExist(filePath)
+
+        if (isExist)
+            startHash(filePath)
+        else
+            setOpenSnackBar(true)
+
+        setOpenModal(false)
+    }
+
+    if(tasks === undefined)
+        return (<div/>)
 
     return (
         <div>
+
+            <AddHashButton
+                onStartNewTask={startNewTask}
+                openModal={openModal}
+                setOpen={setOpenModal}
+            />
 
             {tasks.length>0 && <h1 style={{textAlign: 'center'}}>
                 <Typography variant={"h4"}>
@@ -28,7 +70,7 @@ const HashPanel = ({tasks, onRemoveTask}: Props) => {
                     key={task.Token.token}
                     timeout={500}
                     classNames="item">
-                        <HashLoader task={task} onRemove={onRemoveTask}/>
+                        <HashLoader task={task} onRemove={handleRemoveTask}/>
                  </CSSTransition>
                 )}
             </TransitionGroup>
