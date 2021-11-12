@@ -18,21 +18,16 @@ class ApplicationTest {
 
     private val testFile = System.getProperty("user.dir") + "\\tests\\" + "test.txt"
 
-
     @Test
     fun testMD5() {
         val expectedHash = "42146759f5cd54c396f30b1666a7db49"
-        val hashType = HashType.MD5
-
-        testCheckSum(testFile, expectedHash, hashType)
+        testCheckSum(testFile, expectedHash, HashType.MD5)
     }
 
     @Test
     fun testSHA256() {
         val expectedHash = "5312020010fa8f8a81d0bddce22cf754e86b9cf7fa93a2469628a001e574dac9"
-        val hashType = HashType.SHA256
-
-        testCheckSum(testFile, expectedHash, hashType)
+        testCheckSum(testFile, expectedHash,  HashType.SHA256)
     }
 
     private fun testCheckSum(filePath: String, expectedHash: String, hashType: HashType) {

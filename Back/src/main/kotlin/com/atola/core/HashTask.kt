@@ -3,6 +3,9 @@ package com.atola.core
 import com.atola.common.HashTaskParams
 import com.atola.models.HashProcessToken
 import com.atola.models.HashResult
+import kotlinx.coroutines.CompletableDeferred
+import java.nio.ByteBuffer
+import java.nio.channels.AsynchronousFileChannel
 import java.security.MessageDigest
 import java.util.*
 
