@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import './styles/App.css'
+import AppMenu, {MenuOption} from "./components/menu/AppMenu";
 
 function App() {
 

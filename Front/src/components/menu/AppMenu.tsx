@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Drawer, List} from "@mui/material";
 import {Box} from '@material-ui/core';
 import MenuItem from "./menuItem/MenuItem";
@@ -18,16 +18,19 @@ interface Props {
 
 const AppMenu = ({menuList, menuOpen, onMenuOpen}: Props) => {
 
+    const [currentPage, setCurrentPage] = useState<MenuOption>(menuList[0])
+
     const menubar = () => (
         <Box
             sx={{width: 250}}
-            role="presentation"
-            onClick={() => onMenuOpen(false)}
-            onKeyDown={() => onMenuOpen(false)}>
+            role="presentation">
             <List>
-                {menuList.map((option, index) => (
-                    <MenuItem item={option}/>
-                ))}
+                {menuList.map((option, index) =>
+                    <MenuItem
+                        isOpen={currentPage === option}
+                        item={option}
+                        onClick={() => setCurrentPage(option)}
+                    />)}
             </List>
         </Box>
     );
@@ -36,7 +39,7 @@ const AppMenu = ({menuList, menuOpen, onMenuOpen}: Props) => {
         <div>
             <AppNavigation>
                 <Drawer
-                    anchor='left'
+                    anchor='bottom'
                     open={menuOpen}
                     variant={"permanent"}
                     onClose={() => onMenuOpen(false)}>
