@@ -5,12 +5,10 @@ import com.atola.common.HashType
 import com.atola.core.HashTask
 import com.atola.core.OnHashingListener
 import com.atola.plugins.configureRouting
-import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.io.File
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.fail
 

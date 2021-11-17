@@ -11,10 +11,6 @@ function App() {
             link: "/about"
         },
         {
-            name: "Entropy",
-            link: "/entropy"
-        },
-        {
             name: "Hash",
             link: "/hash"
         }

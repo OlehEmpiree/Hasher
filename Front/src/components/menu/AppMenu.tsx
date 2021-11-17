@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Drawer, List} from "@mui/material";
+import {AppBar, Drawer, IconButton, List, ListItemIcon, Toolbar, Typography} from "@mui/material";
 import {Box} from '@material-ui/core';
 import MenuItem from "./menuItem/MenuItem";
 import AppNavigation from "../navigation/AppNavigation";
@@ -18,7 +18,7 @@ interface Props {
 
 const AppMenu = ({menuList, menuOpen, onMenuOpen}: Props) => {
 
-    const [currentPage, setCurrentPage] = useState<MenuOption>(menuList[0])
+    const [currentPage, setCurrentPage] = useState<MenuOption>()
 
     const menubar = () => (
         <Box
@@ -39,7 +39,7 @@ const AppMenu = ({menuList, menuOpen, onMenuOpen}: Props) => {
         <div>
             <AppNavigation>
                 <Drawer
-                    anchor='bottom'
+                    anchor='left'
                     open={menuOpen}
                     variant={"permanent"}
                     onClose={() => onMenuOpen(false)}>

@@ -1,30 +1,31 @@
 package com.atola.core
 
+import com.atola.common.ByteArrayPool
 import com.atola.common.HashTaskParams
 import com.atola.models.HashProcessToken
 import com.atola.models.HashResult
-import kotlinx.coroutines.CompletableDeferred
-import java.nio.ByteBuffer
-import java.nio.channels.AsynchronousFileChannel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.produce
 import java.security.MessageDigest
 import java.util.*
+import java.util.concurrent.TimeUnit
 
+//C:\Users\Atolanin\Desktop\WDC WD10SMZW-11Y0TS0 WDWXW1A58HUVF0.img
+
+data class BytesData(val bytes: ByteArray, val bytesRead: Int)
 
 class HashTask(val params: HashTaskParams) {
 
     private var checksum = ""
     val token: UUID = UUID.randomUUID()
 
+    val byteArrayPool = ByteArrayPool(4096 * 512)
+
     var isAborted = false
-        get() = field
-        private set(value) {
-            field = value
-        }
+        private set
     var progress = -1
-        get() = field
-        private set(value) {
-            field = value
-        }
+        private set
 
 
     fun abort() {
@@ -33,9 +34,12 @@ class HashTask(val params: HashTaskParams) {
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun start() {
 
         val callback = params.callbackListener
+        val startTime = System.currentTimeMillis()
+
 
         if (!params.file.exists()) {
             callback?.onFailed("File not exist")
@@ -47,31 +51,35 @@ class HashTask(val params: HashTaskParams) {
 
         val digest = MessageDigest.getInstance(hashType.name)
 
-        params.file.inputStream().use { stream ->
+        val receiver = GlobalScope.produce(capacity = 2) {
+            params.file.inputStream().use { stream ->
 
-            stream.available()
+                var processedBytes = 0L
 
-            val byteArray = ByteArray(1024)
+                while (!isAborted) {
+                    val byteArray = byteArrayPool.Allocate()
 
-            var processedBytes = 0L
+                    val bytesRead = stream.read(byteArray)
 
-            while (!isAborted) {
-                val bytesRead = stream.read(byteArray)
+                    if (bytesRead == -1)
+                        break
 
-                if (bytesRead == -1)
-                    break
+                    send(byteArray to bytesRead)
+                    processedBytes += bytesRead
+                    progress = (processedBytes * 100 / totalSizeInBytes).toInt()
 
-                digest.update(byteArray, 0, bytesRead)
-                processedBytes += bytesRead
-                progress = (processedBytes * 100 / totalSizeInBytes).toInt()
-
+                }
             }
+        }
 
-            stream.close()
+        for ((bytes, bytesRead) in receiver) {
+            digest.update(bytes, 0, bytesRead)
+            byteArrayPool.Free(bytes)
         }
 
         isAborted = true
         checksum = hashType.bytesToString(digest.digest())
+        println(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime))
     }
 
     fun getResult(): HashResult =
